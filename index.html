@@ -141,7 +141,13 @@
                 manual brew maupun tubruk klasik.
               </p>
               <span class="price">Rp 89.000</span>
-              <a href="#" class="btn btn-primary">Tambah ke Keranjang</a>
+              <button 
+                class="btn btn-primary add-to-cart" 
+                data-product="Signature Bubuk Ratuku" 
+                data-price="89000"
+              >
+                Tambah ke Keranjang
+              </button>
             </div>
             <div class="product-card">
               <img
@@ -154,7 +160,13 @@
                 untuk pour over maupun french press.
               </p>
               <span class="price">Rp 125.000</span>
-              <a href="#" class="btn btn-primary">Tambah ke Keranjang</a>
+              <button 
+                class="btn btn-primary add-to-cart" 
+                data-product="Arabica Gayo Bubuk" 
+                data-price="125000"
+              >
+                Tambah ke Keranjang
+              </button>
             </div>
             <div class="product-card">
               <img
@@ -167,7 +179,13 @@
                 yang tahan lama di lidah.
               </p>
               <span class="price">Rp 110.000</span>
-              <a href="#" class="btn btn-primary">Tambah ke Keranjang</a>
+              <button 
+                class="btn btn-primary add-to-cart" 
+                data-product="Rempah Nusantara" 
+                data-price="110000"
+              >
+                Tambah ke Keranjang
+              </button>
             </div>
           </div>
         </div>
@@ -314,6 +332,17 @@
       </div>
     </footer>
 
+    <a
+      href="https://wa.me/6281272127555?text=Halo%20Kopi%20Ratuku,%20saya%20ingin%20memesan%20kopi%20bubuk."
+      class="floating-wa"
+      id="wa-link"
+      target="_blank"
+      rel="noopener"
+    >
+      <ion-icon name="logo-whatsapp"></ion-icon>
+      <span>Chat via WhatsApp</span>
+    </a>
+
     <script
       type="module"
       src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
@@ -381,6 +410,78 @@
             showTestimonial(next);
           }, 6000);
         }
+
+        // Cart Management & WhatsApp Integration
+        const waLink = document.getElementById('wa-link');
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        const WA_NUMBER = '6281272127555';
+        const DEFAULT_MESSAGE = 'Halo Kopi Ratuku, saya ingin memesan kopi bubuk.';
+
+        // Fungsi untuk mendapatkan cart dari localStorage
+        function getCart() {
+          const cart = localStorage.getItem('ratukuCart');
+          return cart ? JSON.parse(cart) : [];
+        }
+
+        // Fungsi untuk menyimpan cart ke localStorage
+        function saveCart(cart) {
+          localStorage.setItem('ratukuCart', JSON.stringify(cart));
+        }
+
+        // Fungsi untuk generate pesan WhatsApp
+        function generateWAMessage(cart) {
+          if (cart.length === 0) {
+            return DEFAULT_MESSAGE;
+          }
+
+          let message = 'Halo Kopi Ratuku, saya ingin memesan:\n\n';
+          let total = 0;
+
+          cart.forEach((item, index) => {
+            const price = parseInt(item.price);
+            total += price;
+            message += `${index + 1}. ${item.product} - Rp ${price.toLocaleString('id-ID')}\n`;
+          });
+
+          message += `\nTotal: Rp ${total.toLocaleString('id-ID')}\n\nTerima kasih!`;
+          return message;
+        }
+
+        // Fungsi untuk update link WhatsApp
+        function updateWALink() {
+          const cart = getCart();
+          const message = generateWAMessage(cart);
+          const encodedMessage = encodeURIComponent(message);
+          waLink.href = `https://wa.me/${WA_NUMBER}?text=${encodedMessage}`;
+        }
+
+        // Handle click tombol "Tambah ke Keranjang"
+        addToCartButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const product = this.getAttribute('data-product');
+            const price = this.getAttribute('data-price');
+            
+            const cart = getCart();
+            cart.push({ product, price });
+            saveCart(cart);
+            
+            // Update link WhatsApp
+            updateWALink();
+            
+            // Feedback visual
+            const originalText = this.textContent;
+            this.textContent = '✓ Ditambahkan!';
+            this.style.backgroundColor = '#28a745';
+            
+            setTimeout(() => {
+              this.textContent = originalText;
+              this.style.backgroundColor = '';
+            }, 2000);
+          });
+        });
+
+        // Update link WhatsApp saat halaman dimuat
+        updateWALink();
     </script>
   </body>
 </html>
